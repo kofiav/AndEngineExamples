@@ -67,8 +67,8 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
         this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         CAMERA_WIDTH = displayMetrics.widthPixels;
         CAMERA_HEIGHT = displayMetrics.heightPixels;
-		final Camera camera = new Camera(0, // x
-				                         0, // y
+		final Camera camera = new Camera(0,                 // x
+				                         0,                 // y
 				                         CAMERA_WIDTH, 
 				                         CAMERA_HEIGHT
 				                         );
@@ -87,11 +87,15 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 		 */
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
+		
 		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), // Texture manager
 				                                          256,                      // Width of texture atlas
 				                                          128,                      // Height of texture atlas
 				                                          TextureOptions.BILINEAR   // Rendering options (TextureOptions.BILINEAR minimizes pixelation)
 				                                          );
+		/*
+		 * NOTE: (0, 0) denotes the upper left of the bitmap texture box
+		 */
 		this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,  // The texture atlas
 				                                                                                this,                      // The base context
 				                                                                                "player.png",              // Sprite
@@ -112,8 +116,8 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 		this.mBitmapTextureAtlas.load();
 
 		this.mAutoParallaxBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(),   // Texture manager
-				                                                     1024,                       // Width of texture atlas
-				                                                     1024                        // Height of texture atlas
+				                                                     2048,                       // Width of texture atlas
+				                                                     2048                        // Height of texture atlas
 				                                                     );
 		
 		this.mParallaxLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture,     // Texture Atlas
@@ -196,7 +200,7 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 		final float playerX = (CAMERA_WIDTH - this.mPlayerTextureRegion.getWidth()) / 2;
 		final float playerY = CAMERA_HEIGHT - this.mPlayerTextureRegion.getHeight() - 5;
 
-		/* Create two sprits and add it to the scene. */
+		/* Create two spirits and add it to the scene. */
 		final AnimatedSprite player = new AnimatedSprite(playerX, playerY, this.mPlayerTextureRegion, vertexBufferObjectManager);
 		player.setScaleCenterY(this.mPlayerTextureRegion.getHeight());
 		player.setScale(2);

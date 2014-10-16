@@ -15,6 +15,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 /**
@@ -29,8 +30,8 @@ public class TouchDragExample extends SimpleBaseGameActivity {
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 720;
-	private static final int CAMERA_HEIGHT = 480;
+	private int CAMERA_WIDTH;
+	private int CAMERA_HEIGHT;
 
 	// ===========================================================
 	// Fields
@@ -54,10 +55,14 @@ public class TouchDragExample extends SimpleBaseGameActivity {
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		Toast.makeText(this, "Touch & Drag the face!", Toast.LENGTH_LONG).show();
-
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        CAMERA_WIDTH = displayMetrics.widthPixels;
+        CAMERA_HEIGHT = displayMetrics.heightPixels;
+        
 		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		return new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
 	}
 
 	@Override
@@ -76,8 +81,8 @@ public class TouchDragExample extends SimpleBaseGameActivity {
 		final Scene scene = new Scene();
 		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 
-		final float centerX = (CAMERA_WIDTH - this.mFaceTextureRegion.getWidth()) / 2;
-		final float centerY = (CAMERA_HEIGHT - this.mFaceTextureRegion.getHeight()) / 2;
+		final float centerX = (CAMERA_HEIGHT - this.mFaceTextureRegion.getWidth()) / 2;
+		final float centerY = (CAMERA_WIDTH - this.mFaceTextureRegion.getHeight()) / 2;
 		final Sprite face = new Sprite(centerX, centerY, this.mFaceTextureRegion, this.getVertexBufferObjectManager()) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {

@@ -18,6 +18,8 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.util.DisplayMetrics;
+
 /**
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga
@@ -30,8 +32,8 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 720;
-	private static final int CAMERA_HEIGHT = 480;
+	private int CAMERA_WIDTH;
+	private int CAMERA_HEIGHT;
 
 	// ===========================================================
 	// Fields
@@ -61,24 +63,80 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        CAMERA_WIDTH = displayMetrics.widthPixels;
+        CAMERA_HEIGHT = displayMetrics.heightPixels;
+		final Camera camera = new Camera(0, // x
+				                         0, // y
+				                         CAMERA_WIDTH, 
+				                         CAMERA_HEIGHT
+				                         );
 
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		return new EngineOptions(true,                                                    // Full-screen
+				                 ScreenOrientation.PORTRAIT_FIXED,                        // Aspect-ratio
+				                 new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT),  // ??
+				                 camera                                                   // Camera
+				                 );
 	}
 
 	@Override
 	public void onCreateResources() {
+		/*
+		 * Set path where images are located
+		 */
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		
-		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 256, 128, TextureOptions.BILINEAR);
-		this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "player.png", 0, 0, 3, 4);
-		this.mEnemyTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "enemy.png", 73, 0, 3, 4);
+		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), // Texture manager
+				                                          256,                      // Width of texture atlas
+				                                          128,                      // Height of texture atlas
+				                                          TextureOptions.BILINEAR   // Rendering options (TextureOptions.BILINEAR minimizes pixelation)
+				                                          );
+		this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,  // The texture atlas
+				                                                                                this,                      // The base context
+				                                                                                "player.png",              // Sprite
+				                                                                                0,                         // x offset
+				                                                                                0,                         // y offset
+				                                                                                3,                         // # of tile columns (in PNG file)
+				                                                                                4                          // # of tile rows (in PNG file)
+				                                                                                );
+		
+		this.mEnemyTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, 
+				                                                                               this, 
+				                                                                               "enemy.png", 
+				                                                                               73,
+				                                                                               0, 
+				                                                                               3, 
+				                                                                               4
+				                                                                               );
 		this.mBitmapTextureAtlas.load();
 
-		this.mAutoParallaxBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 1024, 1024);
-		this.mParallaxLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture, this, "parallax_background_layer_front.png", 0, 0);
-		this.mParallaxLayerBack = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture, this, "parallax_background_layer_back.png", 0, 188);
-		this.mParallaxLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture, this, "parallax_background_layer_mid.png", 0, 669);
+		this.mAutoParallaxBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(),   // Texture manager
+				                                                     1024,                       // Width of texture atlas
+				                                                     1024                        // Height of texture atlas
+				                                                     );
+		
+		this.mParallaxLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture,     // Texture Atlas
+				                                                                          this,                                    // Context
+				                                                                          "parallax_background_layer_front.png",   // Sprite
+				                                                                          0,                                       // x offset
+				                                                                          0                                        // y offset
+				                                                                          );
+		
+		this.mParallaxLayerBack = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture, 
+				                                                                         this, 
+				                                                                         "parallax_background_layer_back.png", 
+				                                                                         0, 
+				                                                                         188
+				                                                                         );
+		
+		this.mParallaxLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mAutoParallaxBackgroundTexture, 
+				                                                                        this, 
+				                                                                        "parallax_background_layer_mid.png", 
+				                                                                        0, 
+				                                                                        669
+				                                                                        );
+		
 		this.mAutoParallaxBackgroundTexture.load();
 	}
 
@@ -87,11 +145,51 @@ public class AutoParallaxBackgroundExample extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		final Scene scene = new Scene();
-		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
+		
+		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0,    // R
+				                                                                         0,    // G
+				                                                                         0,    // B
+				                                                                         5     // Parallax change per second
+				                                                                         );
+		
 		final VertexBufferObjectManager vertexBufferObjectManager = this.getVertexBufferObjectManager();
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(0.0f, new Sprite(0, CAMERA_HEIGHT - this.mParallaxLayerBack.getHeight(), this.mParallaxLayerBack, vertexBufferObjectManager)));
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-5.0f, new Sprite(0, 80, this.mParallaxLayerMid, vertexBufferObjectManager)));
-		autoParallaxBackground.attachParallaxEntity(new ParallaxEntity(-10.0f, new Sprite(0, CAMERA_HEIGHT - this.mParallaxLayerFront.getHeight(), this.mParallaxLayerFront, vertexBufferObjectManager)));
+		
+		Sprite mParallaxLayerBackSprite = new Sprite(0,                                                     // x
+				                                     CAMERA_HEIGHT - this.mParallaxLayerBack.getHeight(),   // y
+				                                     this.mParallaxLayerBack,                               // Texture region
+				                                     vertexBufferObjectManager                              // VertexBufferObjectManager
+				                                     );
+		
+		ParallaxEntity mParallaxLayerBackEntity = new ParallaxEntity(0.0f,                      // Parallax factor
+				                                                     mParallaxLayerBackSprite   // Sprite
+				                                                     );
+		
+		autoParallaxBackground.attachParallaxEntity(mParallaxLayerBackEntity);
+		
+		Sprite mParallaxLayerMidSprite = new Sprite(0, 
+				                                    80, 
+				                                    this.mParallaxLayerMid, 
+				                                    vertexBufferObjectManager
+				                                    );
+		
+		ParallaxEntity mParallaxLayerMidEntity = new ParallaxEntity(-5.0f, 
+				                                                    mParallaxLayerMidSprite
+				                                                    );
+		
+		autoParallaxBackground.attachParallaxEntity(mParallaxLayerMidEntity);
+		
+		Sprite mParallaxLayerFront = new Sprite(0, 
+				                                CAMERA_HEIGHT - this.mParallaxLayerFront.getHeight(), 
+				                                this.mParallaxLayerFront, 
+				                                vertexBufferObjectManager
+				                                );
+		
+		ParallaxEntity mParallaxLayerFrontEntity = new ParallaxEntity(-10.0f, 
+				                                                      mParallaxLayerFront
+				                                                      );
+		
+		autoParallaxBackground.attachParallaxEntity(mParallaxLayerFrontEntity);
+		
 		scene.setBackground(autoParallaxBackground);
 
 		/* Calculate the coordinates for the face, so its centered on the camera. */

@@ -7,6 +7,8 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.modifier.LoopEntityModifier;
+import org.andengine.entity.modifier.RotationModifier;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
@@ -90,7 +92,17 @@ public class SpriteExample extends SimpleBaseGameActivity {
 
 		/* Create the face and add it to the scene. */
 		final Sprite face = new Sprite(centerX, centerY, this.mFaceTextureRegion, this.getVertexBufferObjectManager());
-		scene.attachChild(face);
+	    
+		/*
+		 * Rotating a sprite
+		 */
+		RotationModifier rotation = new RotationModifier(5,           // Duration of rotation 
+				                                         0,           // Start angle
+				                                         360);        // End angle
+	    LoopEntityModifier loop = new LoopEntityModifier(rotation);   // Repeat rotation indefinitely
+	    face.registerEntityModifier(loop);
+		
+	    scene.attachChild(face);
 
 		return scene;
 	}
